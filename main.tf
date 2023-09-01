@@ -15,6 +15,11 @@ resource "digitalocean_droplet" "vm_projeto" {
   size     = var.droplet_size
   ssh_keys = [data.digitalocean_ssh_key.ssh_key.id]
   count    = var.vm_counts
+
+  provisioner "local-exec" {
+    command = "echo Máquina com IP: ${self.ipv4_address}"
+    
+  }
 }
 
 resource "digitalocean_firewall" "firewall_projeto" {
