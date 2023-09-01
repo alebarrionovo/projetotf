@@ -4,7 +4,7 @@ variable "do_token" {
 }
 
 variable "droplet_name" {
-  default     = "vm-projeto"
+  default     = "vmprojeto"
   type        = string
   description = "Nome inicial do droplet"
 }
