@@ -8,24 +8,35 @@ terraform {
   }
 }
 
-resource "digitalocean_droplet" "vm_projeto" {
+resource "digitalocean_droplet" "vmprojeto" {
   image    = "ubuntu-22-04-x64"
-  name     = "${var.droplet_name}+${count.index}"
+  name     = "${var.droplet_name}${count.index}"
   region   = var.droplet_region
   size     = var.droplet_size
   ssh_keys = [data.digitalocean_ssh_key.ssh_key.id]
   count    = var.vm_counts
 
-  provisioner "local-exec" {
-    command = "echo Máquina com IP: ${self.ipv4_address}"
-    
+  connection {
+    type        = "ssh"
+    user        = "root"
+    private_key = file()
+    host        = digitalocean_droplet.vmprojeto[*].ipv4_address
+  }
+
+  provisioner "remote-exec" {
+    inline = [ 
+      "apt update",
+      "apt install curl",
+      "apt install nginx",
+      "curl -fssl https://get.docker.com | sh"
+     ]
   }
 }
 
-resource "digitalocean_firewall" "firewall_projeto" {
-  name = "firewall-projeto"
+resource "digitalocean_firewall" "firewall" {
+  name = "firewall"
 
-  droplet_ids = digitalocean_droplet.vm_projeto[*].id
+  droplet_ids = digitalocean_droplet.vmprojeto[*].id
 
   inbound_rule {
     protocol         = "tcp"
